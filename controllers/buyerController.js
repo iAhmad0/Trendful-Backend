@@ -66,4 +66,46 @@ const getBuyerInfo = async (req, res) => {
   }
 };
 
-module.exports = { loginBuyer, signupBuyer, checkToken, getBuyerInfo };
+const updateBuyerInfo = async (req, res) => {
+  try {
+    const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+    if (verifyToken) {
+      const { newName, newEmail, newMobile } = req.body;
+      const buyer = await Buyer.findByIdAndUpdate(verifyToken.buyerId, {
+        name: newName,
+        email: newEmail,
+        mobile: newMobile,
+      });
+    }
+  } catch (err) {
+    res.status(StatusCodes.FORBIDDEN).json({ valid: false });
+  }
+};
+
+const updateBuyerPassword = async (req, res) => {
+  try {
+    const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+    if (verifyToken) {
+      const { currentPassword, newPassword } = req.body;
+
+      const buyer = await Buyer.findById(verifyToken.buyerId);
+      const isPasswordCorrect = await buyer.comparePassword(currentPassword);
+      if (isPasswordCorrect) {
+        await Buyer.findByIdAndUpdate(verifyToken.buyerId, {
+          password: newPassword,
+        });
+      }
+    }
+  } catch (err) {
+    res.status(StatusCodes.FORBIDDEN).json({ valid: false });
+  }
+};
+
+module.exports = {
+  loginBuyer,
+  signupBuyer,
+  checkToken,
+  getBuyerInfo,
+  updateBuyerInfo,
+  updateBuyerPassword,
+};
