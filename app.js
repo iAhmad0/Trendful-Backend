@@ -8,6 +8,7 @@ const buyerRouter = require("./routes/buyerRouter");
 const sellerRouter = require("./routes/sellerRouter");
 const adminRouter = require("./routes/adminRouter");
 const orderRouter = require("./routes/orderRouter");
+const paymentRouter = require("./routes/paymentRouter");
 const notFoundMiddleware = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
 
@@ -22,6 +23,7 @@ app.use("/", cors(), buyerRouter);
 app.use("/", cors(), sellerRouter);
 app.use("/", cors(), adminRouter);
 app.use("/", cors(), orderRouter);
+app.use("/", cors(), paymentRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
