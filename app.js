@@ -12,14 +12,12 @@ const chatRouter = require("./routes/chatRouter");
 const messageRouter = require("./routes/messageRouter");
 const pointRouter = require('./routes/pointsRouter');
 const rewardRouter = require('./routes/rewardsRouter');
+const paymentRouter = require("./routes/paymentRouter");
 const notFoundMiddleware = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
 
 const app = express();
-
 app.use(express.json());
-
-
 
 app.use("/", cors(), productRouter);
 app.use("/", cors(), buyerRouter);
@@ -30,6 +28,7 @@ app.use("/chats", cors(), chatRouter);
 app.use("/messages", cors(), messageRouter);
 app.use('/points',cors(), pointRouter);
 app.use('/rewards',cors(), rewardRouter);
+app.use("/", cors(), paymentRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
