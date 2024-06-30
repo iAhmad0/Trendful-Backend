@@ -13,6 +13,7 @@ const messageRouter = require("./routes/messageRouter");
 const pointRouter = require('./routes/pointsRouter');
 const rewardRouter = require('./routes/rewardsRouter');
 const paymentRouter = require("./routes/paymentRouter");
+const advertisingRouter = require("./routes/advertisingRouter");
 const notFoundMiddleware = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
 
@@ -24,6 +25,7 @@ app.use("/", cors(), buyerRouter);
 app.use("/", cors(), sellerRouter);
 app.use("/", cors(), adminRouter);
 app.use("/", cors(), orderRouter);
+app.use("/", cors(), advertisingRouter);
 app.use("/chats", cors(), chatRouter);
 app.use("/messages", cors(), messageRouter);
 app.use('/points',cors(), pointRouter);
