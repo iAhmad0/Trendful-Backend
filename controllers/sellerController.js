@@ -4,6 +4,7 @@ const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const { STATUS_CODES } = require("http");
 
 // login Seller
 const loginSeller = async (req, res) => {
@@ -103,19 +104,10 @@ const updateSellerPassword = async (req, res) => {
   }
 };
 
-// create product
-const createProduct = async (req, res) => {
-  const newProduct = await Product.create(req.body);
-  res.status(StatusCodes.CREATED).json({
-    status: "success",
-    data: {
-      product: newProduct,
-    },
-  });
-};
-
 const addProduct = async (req, res) => {
-  try {
+  const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+
+  if (verifyToken) {
     const { name, description, price, quantity, category } = req.body;
     let images = [];
 
@@ -123,24 +115,35 @@ const addProduct = async (req, res) => {
       images.push(req.files[i].filename);
     }
 
-    if (!req.files) {
+    if (
+      name != "" &&
+      description != "" &&
+      images.length &&
+      price != 0 &&
+      quantity != 0 &&
+      category != ""
+    ) {
+      await Seller.findByIdAndUpdate(verifyToken.sellerId, {
+        $push: {
+          products: [
+            {
+              name: name,
+              description: description,
+              images: images,
+              price: price,
+              quantity: quantity,
+              category: category,
+            },
+          ],
+        },
+      });
+
+      res.status(StatusCodes.OK).json("Successful");
+    } else {
       res
         .status(StatusCodes.BAD_REQUEST)
         .json("Please fill in all the fields.");
     }
-
-    const user = await Product.create({
-      name,
-      description,
-      images,
-      price,
-      quantity,
-      category,
-    });
-
-    res.status(StatusCodes.OK).json("Successful");
-  } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json("Please fill in all the fields.");
   }
 };
 
@@ -154,9 +157,14 @@ const getProductImage = async (req, res) => {
 };
 
 // read products
-const getAllProducts = async (req, res) => {
-  const products = await Product.find().sort("createdAt");
-  res.status(StatusCodes.OK).json({ products });
+const getSellerProducts = async (req, res) => {
+  const verifyToken = jwt.verify(req.params.id, process.env.SECRET);
+  if (verifyToken) {
+    const seller = await Seller.findById(verifyToken.sellerId);
+    res.status(StatusCodes.OK).json(seller.products);
+  } else {
+    res.status(StatusCodes.NOT_ACCEPTABLE).json("Please log in again.");
+  }
 };
 
 // update product
@@ -190,8 +198,7 @@ module.exports = {
   getSellerInfo,
   updateSellerInfo,
   updateSellerPassword,
-  createProduct,
-  getAllProducts,
+  getSellerProducts,
   updateProduct,
   deleteProduct,
   addProduct,

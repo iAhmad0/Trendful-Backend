@@ -19,8 +19,7 @@ const {
   loginSeller,
   signupSeller,
   checkToken,
-  createProduct,
-  getAllProducts,
+  getSellerProducts,
   updateProduct,
   deleteProduct,
   getSellerInfo,
@@ -42,9 +41,7 @@ router.route("/api/sellerInfo").post(getSellerInfo).patch(updateSellerInfo);
 
 router.route("/api/sellerPasswordChange").patch(updateSellerPassword);
 
-// products
-router.post("/api/seller/create-product", createProduct);
-router.get("/seller/get-products", getAllProducts);
+router.get("/seller/get-products/:id", getSellerProducts);
 router.put("/seller/update-product/:id", updateProduct);
 router.delete("/seller/delete-product/:id", deleteProduct);
 
