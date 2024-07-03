@@ -3,6 +3,7 @@ const Product = require("../models/product");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 const jwt = require("jsonwebtoken");
+const path = require("path");
 
 // login Seller
 const loginSeller = async (req, res) => {
@@ -113,6 +114,45 @@ const createProduct = async (req, res) => {
   });
 };
 
+const addProduct = async (req, res) => {
+  try {
+    const { name, description, price, quantity, category } = req.body;
+    let images = [];
+
+    for (let i = 0; i < req.files.length; i++) {
+      images.push(req.files[i].filename);
+    }
+
+    if (!req.files) {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json("Please fill in all the fields.");
+    }
+
+    const user = await Product.create({
+      name,
+      description,
+      images,
+      price,
+      quantity,
+      category,
+    });
+
+    res.status(StatusCodes.OK).json("Successful");
+  } catch (error) {
+    res.status(StatusCodes.BAD_REQUEST).json("Please fill in all the fields.");
+  }
+};
+
+const getProductImage = async (req, res) => {
+  try {
+    const image = path.dirname(__dirname) + "\\uploads\\" + req.params.id;
+    res.status(StatusCodes.OK).sendFile(image);
+  } catch (error) {
+    res.status(StatusCodes.NOT_FOUND).json({ message: "Resource not found!" });
+  }
+};
+
 // read products
 const getAllProducts = async (req, res) => {
   const products = await Product.find().sort("createdAt");
@@ -154,4 +194,6 @@ module.exports = {
   getAllProducts,
   updateProduct,
   deleteProduct,
+  addProduct,
+  getProductImage,
 };

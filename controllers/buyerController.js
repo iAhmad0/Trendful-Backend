@@ -29,11 +29,13 @@ const loginBuyer = async (req, res) => {
 
 // signup buyer
 const signupBuyer = async (req, res) => {
-  const buyer = await Buyer.create({ ...req.body });
-
-  const token = buyer.createJWT();
-
-  res.status(StatusCodes.CREATED).json({ name: buyer.name, token });
+  try {
+    const buyer = await Buyer.create({ ...req.body });
+    const token = buyer.createJWT();
+    res.status(StatusCodes.CREATED).json({ name: buyer.name, token });
+  } catch (err) {
+    res.status(StatusCodes.CONFLICT).json({ reason: "Email already exists!" });
+  }
 };
 
 // check for token

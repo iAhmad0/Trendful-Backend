@@ -15,9 +15,12 @@ const BuyerSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    minLength: [8, "Password must be between 8 and 15 characters."],
+    maxLength: [15, "Password must be between 8 and 15 characters."],
   },
   mobile: {
     type: String,
+    unique: true,
   },
 });
 

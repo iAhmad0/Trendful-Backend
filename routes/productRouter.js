@@ -10,4 +10,5 @@ const {
 router.get("/api/v1/all-products", getAllProducts);
 router.get("/api/v1/:id", getProduct);
 router.post("/api/v1/search", searchProduct);
+
 module.exports = router;

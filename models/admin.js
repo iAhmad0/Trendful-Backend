@@ -25,8 +25,13 @@ AdminSchema.pre("save", async function (next) {
   next();
 });
 
-AdminSchema.methods.comparePassword = async function (candidatePassword) {
-  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+// AdminSchema.methods.comparePassword = async function (candidatePassword) {
+//   const isMatch = await bcrypt.compare(candidatePassword, this.password);
+//   return isMatch;
+// };
+
+AdminSchema.methods.comparePassword = function (candidatePassword) {
+  const isMatch = candidatePassword === this.password;
   return isMatch;
 };
 

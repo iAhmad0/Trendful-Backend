@@ -1,5 +1,18 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e3);
+    cb(null, uniqueSuffix + "." + file.mimetype.slice(6));
+  },
+});
+
+const upload = multer({ storage });
 
 // controller functions
 const {
@@ -13,8 +26,9 @@ const {
   getSellerInfo,
   updateSellerInfo,
   updateSellerPassword,
+  addProduct,
+  getProductImage,
 } = require("../controllers/sellerController");
-const { updateBuyerInfo } = require("../controllers/buyerController");
 
 // signup route
 router.post("/seller/signup", signupSeller);
@@ -29,9 +43,12 @@ router.route("/api/sellerInfo").post(getSellerInfo).patch(updateSellerInfo);
 router.route("/api/sellerPasswordChange").patch(updateSellerPassword);
 
 // products
-router.post("/seller/create-product", createProduct);
+router.post("/api/seller/create-product", createProduct);
 router.get("/seller/get-products", getAllProducts);
 router.put("/seller/update-product/:id", updateProduct);
 router.delete("/seller/delete-product/:id", deleteProduct);
+
+router.post("/api/add-product", upload.any("images"), addProduct);
+router.get("/api/uploads/images/:id", getProductImage);
 
 module.exports = router;
