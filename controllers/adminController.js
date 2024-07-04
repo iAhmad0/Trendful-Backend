@@ -1,7 +1,6 @@
 const Admin = require("../models/admin");
 const Seller = require("../models/seller");
 const Buyer = require("../models/buyer");
-const Product = require("../models/product");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors");
 

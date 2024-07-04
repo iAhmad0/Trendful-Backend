@@ -1,10 +1,51 @@
 const Seller = require("../models/seller");
-const Product = require("../models/product");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 const jwt = require("jsonwebtoken");
 const path = require("path");
-const { STATUS_CODES } = require("http");
+
+const allProducts = [];
+
+const fetchProducts = async () => {
+  const sellers = await Seller.find();
+  sellers.forEach((elm) => {
+    if (elm.products.length) {
+      allProducts.push(...elm.products);
+    }
+  });
+};
+
+fetchProducts();
+
+const getAllProducts = async (req, res) => {
+  if (allProducts.length) {
+    res.status(StatusCodes.OK).json(allProducts);
+  } else {
+    res.status(StatusCodes.CONFLICT);
+  }
+};
+
+const getProduct = async (req, res) => {
+  const [product] = allProducts.filter((elm) => elm._id == req.params.id);
+
+  const { images, description, name, price, quantity } = product;
+
+  let hasStock = false;
+
+  if (quantity > 0) {
+    hasStock = true;
+  }
+
+  const info = {
+    images: images,
+    description: description,
+    name: name,
+    price: price,
+    stock: hasStock,
+  };
+
+  res.status(StatusCodes.OK).json(info);
+};
 
 // login Seller
 const loginSeller = async (req, res) => {
@@ -114,7 +155,6 @@ const addProduct = async (req, res) => {
     for (let i = 0; i < req.files.length; i++) {
       images.push(req.files[i].filename);
     }
-
     if (
       name != "" &&
       description != "" &&
@@ -136,6 +176,19 @@ const addProduct = async (req, res) => {
             },
           ],
         },
+      });
+
+      const seller = await Seller.findById(verifyToken.sellerId);
+      const product = seller.products;
+
+      allProducts.push({
+        _id: product[product.length - 1]._id,
+        name: name,
+        description: description,
+        images: images,
+        price: price,
+        quantity: quantity,
+        category: category,
       });
 
       res.status(StatusCodes.OK).json("Successful");
@@ -191,6 +244,30 @@ const deleteProduct = async (req, res) => {
   res.status(StatusCodes.OK).send("product deleted successfully");
 };
 
+const searchProduct = async (req, res) => {
+  let products = [];
+  let counter = 0;
+  let extra = [];
+  const allProducts = await Product.find();
+
+  for (let i = 0; i < allProducts.length; i++) {
+    if (allProducts[i].name === req.body.search.toLowerCase()) {
+      products.push(allProducts[i]);
+      counter++;
+    } else if (
+      allProducts[i].name[0].toLowerCase() === req.body.search[0].toLowerCase()
+    ) {
+      extra.push(allProducts[i]);
+    }
+  }
+
+  if (counter < 2) {
+    res.status(StatusCodes.OK).json(extra.concat(products));
+  } else {
+    res.status(StatusCodes.OK).json(products);
+  }
+};
+
 module.exports = {
   loginSeller,
   signupSeller,
@@ -203,4 +280,6 @@ module.exports = {
   deleteProduct,
   addProduct,
   getProductImage,
+  getAllProducts,
+  getProduct,
 };

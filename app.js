@@ -3,7 +3,6 @@ require("express-async-errors");
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./db/connect");
-const productRouter = require("./routes/productRouter");
 const categoryRouter = require("./routes/categoryRouter");
 const buyerRouter = require("./routes/buyerRouter");
 const sellerRouter = require("./routes/sellerRouter");
@@ -21,7 +20,6 @@ const errorHandlerMiddleware = require("./middleware/error-handler");
 const app = express();
 app.use(express.json());
 
-app.use("/", cors(), productRouter);
 app.use("/", cors(), categoryRouter);
 app.use("/", cors(), buyerRouter);
 app.use("/", cors(), sellerRouter);

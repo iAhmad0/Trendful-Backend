@@ -27,6 +27,8 @@ const {
   updateSellerPassword,
   addProduct,
   getProductImage,
+  getAllProducts,
+  getProduct,
 } = require("../controllers/sellerController");
 
 // signup route
@@ -47,5 +49,8 @@ router.delete("/seller/delete-product/:id", deleteProduct);
 
 router.post("/api/add-product", upload.any("images"), addProduct);
 router.get("/api/uploads/images/:id", getProductImage);
+
+router.get("/api/v1/all-products", getAllProducts);
+router.get("/api/v1/:id", getProduct);
 
 module.exports = router;
