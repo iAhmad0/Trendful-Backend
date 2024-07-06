@@ -12,7 +12,7 @@ const {
 } = require("../controllers/buyerController");
 
 // signup route
-router.post("/signup", signupBuyer);
+router.post("/register", signupBuyer);
 
 // login route
 router.post("/login", loginBuyer);

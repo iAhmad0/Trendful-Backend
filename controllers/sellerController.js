@@ -4,7 +4,7 @@ const { BadRequestError, UnauthenticatedError } = require("../errors");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 
-const allProducts = [];
+let allProducts = [];
 
 const fetchProducts = async () => {
   const sellers = await Seller.find();
@@ -37,11 +37,28 @@ const getProduct = async (req, res) => {
   }
 
   const info = {
-    images: images,
-    description: description,
     name: name,
+    description: description,
     price: price,
     stock: hasStock,
+    images: images,
+  };
+
+  res.status(StatusCodes.OK).json(info);
+};
+
+const getProductInfo = async (req, res) => {
+  const [product] = allProducts.filter((elm) => elm._id == req.params.id);
+
+  const { name, description, price, quantity, category, images } = product;
+
+  const info = {
+    name: name,
+    description: description,
+    price: price,
+    quantity: quantity,
+    category: category,
+    images: images,
   };
 
   res.status(StatusCodes.OK).json(info);
@@ -150,11 +167,12 @@ const addProduct = async (req, res) => {
 
   if (verifyToken) {
     const { name, description, price, quantity, category } = req.body;
-    let images = [];
+    const images = [];
 
     for (let i = 0; i < req.files.length; i++) {
       images.push(req.files[i].filename);
     }
+
     if (
       name != "" &&
       description != "" &&
@@ -216,32 +234,91 @@ const getSellerProducts = async (req, res) => {
     const seller = await Seller.findById(verifyToken.sellerId);
     res.status(StatusCodes.OK).json(seller.products);
   } else {
-    res.status(StatusCodes.NOT_ACCEPTABLE).json("Please log in again.");
+    res.status(StatusCodes.NOT_ACCEPTABLE).json("Please log in.");
   }
 };
 
 // update product
 const updateProduct = async (req, res) => {
-  if (!req.body) {
-    throw new BadRequestError(" Data to update can not be empty.");
+  const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+
+  if (verifyToken) {
+    const { name, description, price, quantity, category } = req.body;
+    const images = [];
+
+    for (let i = 0; i < req.files.length; i++) {
+      images.push(req.files[i].filename);
+    }
+
+    if (
+      name != "" &&
+      description != "" &&
+      images.length &&
+      price != 0 &&
+      quantity != 0 &&
+      category != ""
+    ) {
+      await Seller.updateOne(
+        { _id: verifyToken.sellerId },
+        {
+          $set: {
+            "products.$[x]": {
+              _id: req.params.id,
+              name: name,
+              description: description,
+              images: images,
+              price: price,
+              quantity: quantity,
+              category: category,
+            },
+          },
+        },
+        {
+          arrayFilters: [
+            {
+              "x._id": req.params.id,
+            },
+          ],
+        }
+      );
+
+      const seller = await Seller.findById(verifyToken.sellerId);
+      const product = seller.products;
+
+      allProducts = allProducts.filter((elm) => elm._id != req.params.id);
+      allProducts.push(...product.filter((elm) => elm._id == req.params.id));
+
+      res.status(StatusCodes.OK).json("Successful");
+    } else {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json("Please fill in all the fields.");
+    }
   }
-  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-  if (!product) {
-    throw new NotFoundError(`no product with id ${req.params.id} `);
-  }
-  res.status(StatusCodes.OK).json({ product });
 };
 
 // delete product
 const deleteProduct = async (req, res) => {
-  const product = await Product.findByIdAndRemove(req.params.id);
-  if (!product) {
-    throw new NotFoundError(`no product with id ${req.params.id} `);
+  const verifyToken = jwt.verify(req.params.token, process.env.SECRET);
+
+  if (verifyToken) {
+    await Seller.findByIdAndUpdate(
+      { _id: verifyToken.sellerId },
+      {
+        $pull: {
+          products: {
+            _id: req.params.id,
+          },
+        },
+      }
+    );
+
+    allProducts = allProducts.filter((elm) => elm._id != req.params.id);
+
+    res.status(StatusCodes.OK).json("Deleted successfully!");
+  } else {
+    res.status(StatusCodes.BAD_REQUEST).json("Couldn't delete the product.");
   }
-  res.status(StatusCodes.OK).send("product deleted successfully");
 };
 
 const searchProduct = async (req, res) => {
@@ -282,4 +359,5 @@ module.exports = {
   getProductImage,
   getAllProducts,
   getProduct,
+  getProductInfo,
 };
