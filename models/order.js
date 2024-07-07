@@ -1,54 +1,79 @@
-const mongoose = require('mongoose');
+const { required } = require("joi");
+const mongoose = require("mongoose");
 
-const orderSchema = mongoose.Schema({
-    orderItems: [{
+const orderSchema = new mongoose.Schema({
+  buyerID: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  sellerID: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
+  ],
+  products: [
+    {
+      _id: false,
+      id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'OrderItem',
-        required:true
-    }],
-    shippingAddress1: {
-        type: String,
         required: true,
-    },
-    shippingAddress2: {
-        type: String,
-    },
-    city: {
-        type: String,
-        required: true,
-    },
-    zip: {
-        type: String,
-        required: true,
-    },
-    phone: {
-        type: String,
-        required: true,
-    },
-    status: {
-        type: String,
-        required: true,
-        default: 'Pending',
-    },
-    totalPrice: {
+      },
+      quantity: {
         type: Number,
+        required: true,
+      },
     },
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    },
-    dateOrdered: {
-        type: Date,
-        default: Date.now,
-    },
-})
-
-orderSchema.virtual('id').get(function () {
-    return this._id.toHexString();
+  ],
+  firstName: {
+    type: String,
+    required: true,
+  },
+  lastName: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  phone: {
+    type: String,
+    required: true,
+  },
+  address: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  //   status: {
+  //     type: String,
+  //     required: true,
+  //     default: "Pending",
+  //   },
+  shipping: {
+    type: Number,
+    required: true,
+  },
+  totalPrice: {
+    type: Number,
+    required: true,
+  },
+  dateOrdered: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-orderSchema.set('toJSON', {
-    virtuals: true,
+orderSchema.virtual("id").get(function () {
+  return this._id.toHexString();
 });
 
-exports.Order = mongoose.model('Order', orderSchema);
+orderSchema.set("toJSON", {
+  virtuals: true,
+});
+
+module.exports = mongoose.model("Order", orderSchema);

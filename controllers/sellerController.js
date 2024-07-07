@@ -1,4 +1,5 @@
 const Seller = require("../models/seller");
+const Order = require("../models/order");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 const jwt = require("jsonwebtoken");
@@ -7,6 +8,7 @@ const path = require("path");
 let allProducts = [];
 
 const fetchProducts = async () => {
+  allProducts = [];
   const sellers = await Seller.find();
   sellers.forEach((elm) => {
     if (elm.products.length) {
@@ -37,6 +39,7 @@ const getProduct = async (req, res) => {
   }
 
   const info = {
+    id: req.params.id,
     name: name,
     description: description,
     price: price,
@@ -345,6 +348,33 @@ const searchProduct = async (req, res) => {
   }
 };
 
+const getHistory = async (req, res) => {
+  const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+
+  if (verifyToken) {
+    const id = verifyToken.sellerId;
+
+    const history = [];
+
+    await Order.findOne({ sellerID: id }).then((order) => {
+      Seller.findOne({ _id: id }).then((seller) => {
+        const s = seller.products;
+        const o = order.products;
+        for (let i = 0; i < o.length; i++) {
+          for (let j = 0; j < s.length; j++) {
+            if (String(s[j]._id) == String(o[i].id)) {
+              history.push({ id: o[i].id, quantity: o[i].quantity });
+            }
+          }
+        }
+        res.status(StatusCodes.OK).json(history);
+      });
+    });
+  } else {
+    res.status(StatusCodes.UNAUTHORIZED).json("Please log in.");
+  }
+};
+
 module.exports = {
   loginSeller,
   signupSeller,
@@ -360,4 +390,5 @@ module.exports = {
   getAllProducts,
   getProduct,
   getProductInfo,
+  getHistory,
 };

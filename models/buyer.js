@@ -22,6 +22,18 @@ const BuyerSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
+  // order: [
+  //   {
+  //     productID: {
+  //       type: mongoose.Schema.Types.ObjectId,
+  //       required: true,
+  //     },
+  //     quantity: {
+  //       type: Number,
+  //       required: true,
+  //     },
+  //   },
+  // ],
 });
 
 BuyerSchema.pre("save", async function (next) {

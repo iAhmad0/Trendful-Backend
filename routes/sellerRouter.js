@@ -30,6 +30,7 @@ const {
   getAllProducts,
   getProduct,
   getProductInfo,
+  getHistory,
 } = require("../controllers/sellerController");
 
 // signup route
@@ -54,5 +55,7 @@ router.get("/api/uploads/images/:id", getProductImage);
 router.get("/api/v1/all-products", getAllProducts);
 router.get("/api/v1/:id", getProduct);
 router.get("/api/v1/product/:id", getProductInfo);
+
+router.post("/api/seller/purchase-history", getHistory);
 
 module.exports = router;
