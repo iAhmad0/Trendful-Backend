@@ -133,35 +133,48 @@ const getSellerInfo = async (req, res) => {
 const updateSellerInfo = async (req, res) => {
   try {
     const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+
     if (verifyToken) {
       const { newName, newEmail, newMobile } = req.body;
-      const seller = await Seller.findByIdAndUpdate(verifyToken.sellerId, {
-        name: newName,
-        email: newEmail,
-        mobile: newMobile,
-      });
+
+      await Seller.updateOne(
+        { _id: verifyToken.sellerId },
+        {
+          $set: {
+            name: newName,
+            email: newEmail,
+            mobile: newMobile,
+          },
+        }
+      );
     }
+
+    res.status(StatusCodes.CREATED).json("Success");
   } catch (err) {
-    res.status(StatusCodes.FORBIDDEN).json({ valid: false });
+    res.status(StatusCodes.CONFLICT).json("Email already exists!");
   }
 };
 
 const updateSellerPassword = async (req, res) => {
   try {
     const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+
     if (verifyToken) {
       const { currentPassword, newPassword } = req.body;
 
       const seller = await Seller.findById(verifyToken.sellerId);
-      const isPasswordCorrect = await seller.comparePassword(currentPassword);
+      const isPasswordCorrect = await buyer.comparePassword(currentPassword);
+
       if (isPasswordCorrect) {
         await Seller.findByIdAndUpdate(verifyToken.sellerId, {
           password: newPassword,
         });
+      } else {
+        res.status(StatusCodes.FORBIDDEN).json("Your password is wrong");
       }
     }
   } catch (err) {
-    res.status(StatusCodes.FORBIDDEN).json({ valid: false });
+    res.status(StatusCodes.FORBIDDEN).json("Your password is wrong");
   }
 };
 

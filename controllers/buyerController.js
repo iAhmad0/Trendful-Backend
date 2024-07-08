@@ -33,6 +33,7 @@ const signupBuyer = async (req, res) => {
   try {
     const buyer = await Buyer.create({ ...req.body });
     const token = buyer.createJWT();
+
     res.status(StatusCodes.CREATED).json({ name: buyer.name, token });
   } catch (err) {
     res.status(StatusCodes.CONFLICT).json({ reason: "Email already exists!" });
@@ -72,35 +73,48 @@ const getBuyerInfo = async (req, res) => {
 const updateBuyerInfo = async (req, res) => {
   try {
     const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+
     if (verifyToken) {
       const { newName, newEmail, newMobile } = req.body;
-      const buyer = await Buyer.findByIdAndUpdate(verifyToken.buyerId, {
-        name: newName,
-        email: newEmail,
-        mobile: newMobile,
-      });
+
+      await Buyer.updateOne(
+        { _id: verifyToken.buyerId },
+        {
+          $set: {
+            name: newName,
+            email: newEmail,
+            mobile: newMobile,
+          },
+        }
+      );
     }
+
+    res.status(StatusCodes.CREATED).json("Success");
   } catch (err) {
-    res.status(StatusCodes.FORBIDDEN).json({ valid: false });
+    res.status(StatusCodes.CONFLICT).json("Email already exists!");
   }
 };
 
 const updateBuyerPassword = async (req, res) => {
   try {
     const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+
     if (verifyToken) {
       const { currentPassword, newPassword } = req.body;
 
       const buyer = await Buyer.findById(verifyToken.buyerId);
       const isPasswordCorrect = await buyer.comparePassword(currentPassword);
+
       if (isPasswordCorrect) {
         await Buyer.findByIdAndUpdate(verifyToken.buyerId, {
           password: newPassword,
         });
+      } else {
+        res.status(StatusCodes.FORBIDDEN).json("Your password is wrong");
       }
     }
   } catch (err) {
-    res.status(StatusCodes.FORBIDDEN).json({ valid: false });
+    res.status(StatusCodes.FORBIDDEN).json("Your password is wrong");
   }
 };
 
