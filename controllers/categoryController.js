@@ -14,6 +14,7 @@ const getCategories = async (req, res) => {
 const createCategory = async (req, res) => {
   try {
     const category = await Category.create(req.body);
+
     res.status(StatusCodes.CREATED).json(category);
   } catch (err) {
     res.status(StatusCodes.CONFLICT).json(err);
