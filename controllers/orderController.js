@@ -8,7 +8,14 @@ const order = async (req, res) => {
   const verifyToken = jwt.verify(orderInfo[0], process.env.SECRET);
 
   if (verifyToken) {
-    const allSellers = [];
+    const order = {
+      ...orderInfo[1],
+      products: [...orderInfo[2]],
+      totalPrice: orderInfo[3],
+    };
+
+    const createdOrder = await Order.create(order);
+
     const sellers = await Seller.find();
 
     for (let k = 0; k < orderInfo[2].length; k++) {
@@ -19,7 +26,6 @@ const order = async (req, res) => {
           if (products[j]._id == orderInfo[2][k].id) {
             const product = products[j];
             product.quantity -= orderInfo[2][k].quantity;
-            allSellers.push(sellers[i]._id);
 
             await Seller.updateOne(
               { _id: sellers[i]._id },
@@ -27,11 +33,18 @@ const order = async (req, res) => {
                 $set: {
                   "products.$[x]": product,
                 },
+                $push: {
+                  order: {
+                    _id: createdOrder,
+                    productID: order.id,
+                    quantity: order.quantity,
+                  },
+                },
               },
               {
                 arrayFilters: [
                   {
-                    "x._id": orderInfo[2][k].id,
+                    "x._id": product.id,
                   },
                 ],
               }
@@ -42,17 +55,6 @@ const order = async (req, res) => {
         }
       }
     }
-
-    const order = {
-      buyerID: verifyToken.buyerId,
-      sellerID: allSellers,
-      products: [...orderInfo[2]],
-      ...orderInfo[1],
-      shipping: orderInfo[3],
-      totalPrice: orderInfo[4],
-    };
-
-    await Order.create(order);
 
     res.status(StatusCodes.OK).json("Success");
   } else {
@@ -167,6 +169,7 @@ const deleteOrder = (req, res) => {
       return res.status(500).json({ success: false, error: err });
     });
 };
+
 module.exports = {
   createOrder,
   getOrder,

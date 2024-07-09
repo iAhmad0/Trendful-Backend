@@ -342,7 +342,7 @@ const getHistory = async (req, res) => {
 
   if (verifyToken) {
     const id = verifyToken.sellerId;
-    const seller = Seller.findOne({ _id: id });
+    const seller = await Seller.findOne({ _id: id });
 
     res.status(StatusCodes.OK).json(seller.order);
   } else {

@@ -2,16 +2,6 @@ const { required } = require("joi");
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-  buyerID: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-  },
-  sellerID: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
-  ],
   products: [
     {
       _id: false,
