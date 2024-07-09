@@ -31,6 +31,7 @@ const {
   getProduct,
   getProductInfo,
   getHistory,
+  searchProduct,
 } = require("../controllers/sellerController");
 
 // signup route
@@ -57,5 +58,7 @@ router.get("/api/v1/:id", getProduct);
 router.get("/api/v1/product/:id", getProductInfo);
 
 router.post("/api/seller/purchase-history", getHistory);
+
+router.post("/api/v1/search", searchProduct);
 
 module.exports = router;
