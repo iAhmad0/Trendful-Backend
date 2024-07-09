@@ -53,6 +53,18 @@ const SellerSchema = new mongoose.Schema({
       },
     },
   ],
+  order: [
+    {
+      productID: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
 });
 
 SellerSchema.pre("save", async function (next) {

@@ -192,10 +192,10 @@ const addProduct = async (req, res) => {
     if (
       name != "" &&
       description != "" &&
-      images.length &&
       price != 0 &&
       quantity != 0 &&
-      category != ""
+      category != "" &&
+      images.length
     ) {
       await Seller.findByIdAndUpdate(verifyToken.sellerId, {
         $push: {
@@ -342,23 +342,9 @@ const getHistory = async (req, res) => {
 
   if (verifyToken) {
     const id = verifyToken.sellerId;
+    const seller = Seller.findOne({ _id: id });
 
-    const history = [];
-
-    await Order.findOne({ sellerID: id }).then((order) => {
-      Seller.findOne({ _id: id }).then((seller) => {
-        const s = seller.products;
-        const o = order.products;
-        for (let i = 0; i < o.length; i++) {
-          for (let j = 0; j < s.length; j++) {
-            if (String(s[j]._id) == String(o[i].id)) {
-              history.push({ id: o[i].id, quantity: o[i].quantity });
-            }
-          }
-        }
-        res.status(StatusCodes.OK).json(history);
-      });
-    });
+    res.status(StatusCodes.OK).json(seller.order);
   } else {
     res.status(StatusCodes.UNAUTHORIZED).json("Please log in.");
   }
@@ -366,25 +352,50 @@ const getHistory = async (req, res) => {
 
 const searchProduct = async (req, res) => {
   let products = [];
-  let counter = 0;
   let extra = [];
+  let counter = 0;
 
-  for (let i = 0; i < allProducts.length; i++) {
-    if (allProducts[i].name === req.body.search.toLowerCase()) {
-      products.push(allProducts[i]);
-      counter++;
-    } else if (
-      allProducts[i].name[0].toLowerCase() === req.body.search[0].toLowerCase()
-    ) {
-      extra.push(allProducts[i]);
+  products = allProducts.filter((elm) => {
+    if (elm.category.toLowerCase() == req.params.word) {
+      return elm;
+    }
+  });
+
+  if (products.length) {
+    res.status(StatusCodes.OK).json(products);
+  } else {
+    for (let i = 0; i < allProducts.length; i++) {
+      const word = allProducts[i].name;
+      const search = new RegExp(req.params.word.toLowerCase(), "gi");
+
+      if (search.test(word)) {
+        products.push(allProducts[i]);
+        counter++;
+      } else if (
+        allProducts[i].name[0].toLowerCase() == req.params.word[0].toLowerCase()
+      ) {
+        extra.push(allProducts[i]);
+      }
+    }
+
+    if (counter < 1) {
+      res.status(StatusCodes.OK).json(extra.concat(products));
+    } else if (counter >= 1) {
+      res.status(StatusCodes.OK).json(products);
+    } else {
+      res.status(StatusCodes.NOT_FOUND).json("Error!");
     }
   }
+};
 
-  if (counter < 2) {
-    res.status(StatusCodes.OK).json(extra.concat(products));
-  } else {
-    res.status(StatusCodes.OK).json(products);
-  }
+const searchCategory = async (req, res) => {
+  let products = [];
+
+  products = allProducts.filter(
+    (elm) => elm.category.toLowerCase() == req.body.search.toLowerCase()
+  );
+
+  res.status(StatusCodes.OK).json(products);
 };
 
 module.exports = {
@@ -404,4 +415,5 @@ module.exports = {
   getProductInfo,
   getHistory,
   searchProduct,
+  searchCategory,
 };
