@@ -41,61 +41,61 @@ const getHomeProducts = async (req, res) => {
 };
 
 const getAllSellers = async (req, res) => {
-  const sellers = await Seller.find().sort("createdAt");
-  res.status(StatusCodes.OK).json({ sellers });
+  const sellers = await Seller.find({}, { name: 1, email: 1 });
+  res.status(StatusCodes.OK).json(sellers);
 };
 
-const updateSeller = async (req, res) => {
-  if (!req.body) {
-    throw new BadRequestError(" Data to update can not be empty.");
-  }
+const editSeller = async (req, res) => {
+  try {
+    await Seller.findOneAndUpdate(
+      { _id: req.body.id },
+      {
+        $set: {
+          name: req.body.name,
+          email: req.body.email,
+        },
+      }
+    );
 
-  const seller = await Seller.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!seller) {
-    throw new NotFoundError(`no seller with ${req.params.id} `);
+    res.status(StatusCodes.OK).json("Success");
+  } catch (err) {
+    res.status(StatusCodes.CONFLICT).json("Try another email");
   }
-  res.status(StatusCodes.OK).json({ seller });
 };
 
 const deleteSeller = async (req, res) => {
-  const seller = await Seller.findByIdAndRemove(req.params.id);
-  if (!seller) {
-    throw new NotFoundError(`no seller with ${req.params.id} `);
-  }
-  res.status(StatusCodes.OK).send("seller deleted successfully");
+  await Seller.findOneAndDelete({ _id: req.params.id });
+
+  res.status(StatusCodes.OK).json("Success");
 };
 
 const getAllBuyers = async (req, res) => {
-  const buyers = await Buyer.find().sort("createdAt");
-  res.status(StatusCodes.OK).json({ buyers });
+  const buyers = await Buyer.find({}, { name: 1, email: 1 });
+  res.status(StatusCodes.OK).json(buyers);
 };
 
-const updateBuyer = async (req, res) => {
-  if (!req.body) {
-    throw new BadRequestError(" Data to update can not be empty.");
-  }
+const editBuyer = async (req, res) => {
+  try {
+    await Buyer.findOneAndUpdate(
+      { _id: req.body.id },
+      {
+        $set: {
+          name: req.body.name,
+          email: req.body.email,
+        },
+      }
+    );
 
-  const buyer = await Buyer.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!buyer) {
-    throw new NotFoundError(`no buyer with ${req.params.id} `);
+    res.status(StatusCodes.OK).json("Success");
+  } catch (err) {
+    res.status(StatusCodes.CONFLICT).json("Try another email");
   }
-  res.status(StatusCodes.OK).json({ buyer });
 };
 
 const deleteBuyer = async (req, res) => {
-  const buyer = await Buyer.findByIdAndRemove(req.params.id);
-  if (!buyer) {
-    throw new NotFoundError(`no buyer with ${req.params.id} `);
-  }
-  res.status(StatusCodes.OK).send("buyer deleted successfully");
+  await Buyer.findOneAndDelete({ _id: req.params.id });
+
+  res.status(StatusCodes.OK).json("Success");
 };
 
 // read products
@@ -106,10 +106,10 @@ const getAllProducts = async (req, res) => {
 
 module.exports = {
   getAllSellers,
-  updateSeller,
+  editSeller,
   deleteSeller,
   getAllBuyers,
-  updateBuyer,
+  editBuyer,
   deleteBuyer,
   getAllProducts,
   addHomeProduct,

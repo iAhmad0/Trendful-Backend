@@ -1,5 +1,4 @@
 const Buyer = require("../models/buyer");
-const Order = require("../models/order");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 const jwt = require("jsonwebtoken");
@@ -44,6 +43,7 @@ const signupBuyer = async (req, res) => {
 const checkToken = async (req, res) => {
   try {
     const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+
     if (verifyToken) {
       res.status(StatusCodes.OK).json({ valid: true, name: verifyToken.name });
     }

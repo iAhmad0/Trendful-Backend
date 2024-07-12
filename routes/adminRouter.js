@@ -4,13 +4,12 @@ const router = express.Router();
 //controller functions
 const {
   getAllSellers,
-  updateSeller,
+  editSeller,
   deleteSeller,
   getAllBuyers,
-  updateBuyer,
+  editBuyer,
   deleteBuyer,
   getAllProducts,
-  deleteProduct,
   addHomeProduct,
   removeHomeProduct,
   getHomeProducts,
@@ -21,26 +20,22 @@ const {
   protected,
 } = require("../controllers/auth-adminController");
 
-// Sellers
-router.get("/admin/get-sellers", protected, getAllSellers);
-router.put("/admin/update-seller/:id", protected, updateSeller);
-router.delete("/admin/delete-seller/:id", protected, deleteSeller);
-
-// Buyers
-router.get("/admin/get-buyers", protected, getAllBuyers);
-router.put("/admin/update-buyer/:id", protected, updateBuyer);
-router.delete("/admin/delete-buyer/:id", protected, deleteBuyer);
-
 // Admins
 router.post("/control/admin-login", loginAdmin);
-// router.post("/api/admin-valid/", protected, getAdmin);
 
 // products
-router.get("/admin/get-products", protected, getAllProducts);
-// router.delete("/admin/delete-product/:id", protected, deleteProduct);
+// router.get("/admin/get-products", protected, getAllProducts);
 
+router.get("/api/get-home-products", getHomeProducts);
 router.post("/admin/add-home-product", addHomeProduct);
 router.post("/admin/remove-home-product", removeHomeProduct);
-router.get("/admin/get-home-products", getHomeProducts);
+
+router.get("/admin/get-sellers", getAllSellers);
+router.put("/admin/edit-seller", editSeller);
+router.delete("/admin/delete-seller/:id", deleteSeller);
+
+router.get("/admin/get-buyers", getAllBuyers);
+router.put("/admin/edit-buyer", editBuyer);
+router.delete("/admin/delete-buyer/:id", deleteBuyer);
 
 module.exports = router;

@@ -1,6 +1,8 @@
 const { Server } = require("socket.io");
 
-const io = new Server({ /*cors: client server */ });
+const io = new Server({
+  /*cors: client server */
+});
 
 let onlineUsers = [];
 
@@ -9,25 +11,26 @@ io.on("connection", (socket) => {
 
   // listen to a connection
   socket.on("addNewUser", (userId) => {
-    !onlineUsers.some(user => user.userId === userId) &&
-    onlineUsers.push({
-      userId,
-      socketId : socket.id,
-    });
-
+    !onlineUsers.some((user) => user.userId === userId) &&
+      onlineUsers.push({
+        userId,
+        socketId: socket.id,
+      });
   });
+
   // add message
-  socket.on("sendMessage", (message) =>{
-    const user = onlineUsers.find(user => user.userId === message.recipientId);
-    if(user)
-    {
+  socket.on("sendMessage", (message) => {
+    const user = onlineUsers.find(
+      (user) => user.userId === message.recipientId
+    );
+    if (user) {
       io.to(user.socketId).emit("getMessage", message);
     }
   });
 
   socket.on("disconnect", () => {
     onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
-    io.emit("getOnlineUsers", onlineUsers)
+    io.emit("getOnlineUsers", onlineUsers);
   });
 });
 
