@@ -22,7 +22,7 @@ const BuyerSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
-  order: [
+  orders: [
     {
       productID: {
         type: mongoose.Schema.Types.ObjectId,

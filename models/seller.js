@@ -34,11 +34,6 @@ const SellerSchema = new mongoose.Schema({
         ],
         trim: true,
       },
-      images: {
-        type: Array,
-        required: true,
-        minlength: [1, "At least one image must be provided."],
-      },
       price: {
         type: Number,
         required: true,
@@ -51,9 +46,14 @@ const SellerSchema = new mongoose.Schema({
         type: "String",
         required: true,
       },
+      images: {
+        type: Array,
+        required: true,
+        minlength: [1, "At least one image must be provided."],
+      },
     },
   ],
-  order: [
+  orders: [
     {
       productID: {
         type: mongoose.Schema.Types.ObjectId,

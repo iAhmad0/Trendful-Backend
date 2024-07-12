@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/admin");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
+const { StatusCodes } = require("http-status-codes");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -31,7 +32,6 @@ const createSendToken = (id, statusCode, res) => {
 // login admin
 const loginAdmin = async (req, res) => {
   const { email, password } = req.body;
-
   if (!email || !password) {
     throw new BadRequestError("Please provide email and password");
   }
@@ -46,7 +46,9 @@ const loginAdmin = async (req, res) => {
     throw new UnauthenticatedError("Invalid Credentials");
   }
 
-  createSendToken(admin._id, 200, res);
+  const token = admin.createJWT();
+
+  res.status(StatusCodes.OK).json({ token });
 };
 
 // protecting routes

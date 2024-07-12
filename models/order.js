@@ -2,6 +2,40 @@ const { required } = require("joi");
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
+  buyerID: {
+    type: String,
+    required: true,
+  },
+  buyerInfo: {
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+    city: {
+      type: String,
+      required: true,
+    },
+    shipping: {
+      type: Number,
+      required: true,
+    },
+  },
   products: [
     {
       _id: false,
@@ -15,28 +49,8 @@ const orderSchema = new mongoose.Schema({
       },
     },
   ],
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  phone: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
-  city: {
-    type: String,
+  totalPrice: {
+    type: Number,
     required: true,
   },
   //   status: {
@@ -44,14 +58,6 @@ const orderSchema = new mongoose.Schema({
   //     required: true,
   //     default: "Pending",
   //   },
-  shipping: {
-    type: Number,
-    required: true,
-  },
-  totalPrice: {
-    type: Number,
-    required: true,
-  },
   dateOrdered: {
     type: Date,
     default: Date.now,

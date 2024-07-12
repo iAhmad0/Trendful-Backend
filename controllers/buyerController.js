@@ -122,16 +122,9 @@ const getHistory = async (req, res) => {
   const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
 
   if (verifyToken) {
-    const id = verifyToken.buyerId;
+    const buyer = await Buyer.findOne({ _id: verifyToken.buyerId });
 
-    await Order.find({ buyerID: id }).then((order) => {
-      const orders = [];
-      for (let i = 0; i < order.length; i++) {
-        orders.push(order[i].products);
-      }
-
-      res.status(StatusCodes.OK).json(orders);
-    });
+    res.status(StatusCodes.OK).json(buyer.orders);
   } else {
     res.status(StatusCodes.UNAUTHORIZED).json("Please log in.");
   }

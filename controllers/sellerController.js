@@ -1,36 +1,63 @@
 const Seller = require("../models/seller");
-const Order = require("../models/order");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 
+let homeProducts = [];
 let allProducts = [];
 
 const fetchProducts = async () => {
+  homeProducts = [];
   allProducts = [];
+
   const sellers = await Seller.find();
-  sellers.forEach((elm) => {
-    if (elm.products.length) {
-      allProducts.push(...elm.products);
-    }
+
+  sellers.forEach((seller) => {
+    seller.products.forEach((product) => {
+      homeProducts.push({
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+      });
+
+      allProducts.push({
+        _id: product._id,
+        sellerID: seller._id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        quantity: product.quantity,
+        category: product.category,
+        images: product.images,
+      });
+    });
   });
 };
 
 fetchProducts();
 
+const getHomeProducts = async (req, res) => {
+  if (homeProducts.length) {
+    res.status(StatusCodes.OK).json(homeProducts);
+  } else {
+    res.status(StatusCodes.CONFLICT).json("Error");
+  }
+};
+
 const getAllProducts = async (req, res) => {
   if (allProducts.length) {
     res.status(StatusCodes.OK).json(allProducts);
   } else {
-    res.status(StatusCodes.CONFLICT);
+    res.status(StatusCodes.CONFLICT).json("Error");
   }
 };
 
 const getProduct = async (req, res) => {
   const [product] = allProducts.filter((elm) => elm._id == req.params.id);
 
-  const { images, description, name, price, quantity } = product;
+  const { name, description, price, quantity, images } = product;
 
   let hasStock = false;
 
@@ -38,13 +65,43 @@ const getProduct = async (req, res) => {
     hasStock = true;
   }
 
-  const info = {
+  const newInfo = {
     id: req.params.id,
     name: name,
     description: description,
     price: price,
     stock: hasStock,
     images: images,
+  };
+
+  res.status(StatusCodes.OK).json(newInfo);
+};
+
+const getCartProduct = async (req, res) => {
+  const [product] = allProducts.filter((elm) => elm._id == req.params.id);
+
+  const { name, price, images } = product;
+
+  const newInfo = {
+    id: req.params.id,
+    name: name,
+    price: price,
+    image: images[0],
+  };
+
+  res.status(StatusCodes.OK).json(newInfo);
+};
+
+const getCheckoutProduct = async (req, res) => {
+  const [product] = allProducts.filter((elm) => elm._id == req.params.id);
+
+  const { sellerID, name, price } = product;
+
+  const info = {
+    id: req.params.id,
+    sellerID: sellerID,
+    name: name,
+    price: price,
   };
 
   res.status(StatusCodes.OK).json(info);
@@ -341,10 +398,9 @@ const getHistory = async (req, res) => {
   const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
 
   if (verifyToken) {
-    const id = verifyToken.sellerId;
-    const seller = await Seller.findOne({ _id: id });
+    const seller = await Seller.findOne({ _id: verifyToken.sellerId });
 
-    res.status(StatusCodes.OK).json(seller.order);
+    res.status(StatusCodes.OK).json(seller.orders);
   } else {
     res.status(StatusCodes.UNAUTHORIZED).json("Please log in.");
   }
@@ -388,14 +444,24 @@ const searchProduct = async (req, res) => {
   }
 };
 
-const searchCategory = async (req, res) => {
-  let products = [];
+const adminDeleteProduct = async (req, res) => {
+  const { id, sellerID } = req.params;
 
-  products = allProducts.filter(
-    (elm) => elm.category.toLowerCase() == req.body.search.toLowerCase()
+  await Seller.findByIdAndUpdate(
+    { _id: sellerID },
+    {
+      $pull: {
+        products: {
+          _id: id,
+        },
+      },
+    }
   );
 
-  res.status(StatusCodes.OK).json(products);
+  homeProducts = homeProducts.filter((elm) => elm._id != id);
+  allProducts = allProducts.filter((elm) => elm._id != id);
+
+  res.status(StatusCodes.OK).json("Deleted successfully!");
 };
 
 module.exports = {
@@ -410,10 +476,13 @@ module.exports = {
   deleteProduct,
   addProduct,
   getProductImage,
-  getAllProducts,
+  getHomeProducts,
   getProduct,
   getProductInfo,
   getHistory,
   searchProduct,
-  searchCategory,
+  getCheckoutProduct,
+  getCartProduct,
+  getAllProducts,
+  adminDeleteProduct,
 };

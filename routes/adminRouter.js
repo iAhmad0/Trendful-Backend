@@ -11,6 +11,9 @@ const {
   deleteBuyer,
   getAllProducts,
   deleteProduct,
+  addHomeProduct,
+  removeHomeProduct,
+  getHomeProducts,
 } = require("../controllers/adminController");
 
 const {
@@ -29,11 +32,15 @@ router.put("/admin/update-buyer/:id", protected, updateBuyer);
 router.delete("/admin/delete-buyer/:id", protected, deleteBuyer);
 
 // Admins
-router.post("/admin-login", loginAdmin);
+router.post("/control/admin-login", loginAdmin);
 // router.post("/api/admin-valid/", protected, getAdmin);
 
 // products
 router.get("/admin/get-products", protected, getAllProducts);
-router.delete("/admin/delete-product/:id", protected, deleteProduct);
+// router.delete("/admin/delete-product/:id", protected, deleteProduct);
+
+router.post("/admin/add-home-product", addHomeProduct);
+router.post("/admin/remove-home-product", removeHomeProduct);
+router.get("/admin/get-home-products", getHomeProducts);
 
 module.exports = router;

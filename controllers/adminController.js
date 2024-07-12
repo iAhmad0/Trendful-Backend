@@ -1,8 +1,44 @@
 const Admin = require("../models/admin");
 const Seller = require("../models/seller");
 const Buyer = require("../models/buyer");
+const Home = require("../models/homeproduct");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors");
+
+let homeProducts = [];
+
+const fetchHomeProducts = async () => {
+  homeProducts = await Home.find();
+};
+
+fetchHomeProducts();
+
+const addHomeProduct = async (req, res) => {
+  const count = await Home.find();
+
+  if (count.length < 6) {
+    const product = await Home.create({ productID: req.body.id });
+    homeProducts.push(product);
+
+    res.status(StatusCodes.OK).json("Success");
+  } else {
+    res.status(StatusCodes.BAD_REQUEST).json("Maximum products reached!");
+  }
+};
+
+const removeHomeProduct = async (req, res) => {
+  await Home.findOneAndDelete({ productID: req.body.id });
+
+  homeProducts = homeProducts.filter(
+    (product) => product.productID != req.body.id
+  );
+
+  res.status(StatusCodes.OK).json("Success");
+};
+
+const getHomeProducts = async (req, res) => {
+  res.status(StatusCodes.OK).json(homeProducts);
+};
 
 const getAllSellers = async (req, res) => {
   const sellers = await Seller.find().sort("createdAt");
@@ -68,15 +104,6 @@ const getAllProducts = async (req, res) => {
   res.status(StatusCodes.OK).json({ products });
 };
 
-// delete product
-const deleteProduct = async (req, res) => {
-  const product = await Product.findByIdAndRemove(req.params.id);
-  if (!product) {
-    throw new NotFoundError(`no product with id ${req.params.id} `);
-  }
-  res.status(StatusCodes.OK).send("product deleted successfully");
-};
-
 module.exports = {
   getAllSellers,
   updateSeller,
@@ -85,5 +112,7 @@ module.exports = {
   updateBuyer,
   deleteBuyer,
   getAllProducts,
-  deleteProduct,
+  addHomeProduct,
+  removeHomeProduct,
+  getHomeProducts,
 };
