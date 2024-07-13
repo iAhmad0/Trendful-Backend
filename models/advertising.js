@@ -1,27 +1,26 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const advertisingProductsSchema = new mongoose.Schema({
   productId: {
     type: String,
-    required: true
+    required: true,
   },
   // Store duration in days (or another unit)
   durationInDays: {
     type: Number,
-    required: true
+    required: true,
   },
-  adPlace: {
-    type: String,
-    enum: ['mainPage', 'searchPage'],
-    required: true
-  },
+
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
-  expiresAt: {  
-    type: Date
-  }
+  expiresAt: {
+    type: Date,
+  },
 });
 
-module.exports = mongoose.model('AdvertisingProduct', advertisingProductsSchema);
+module.exports = mongoose.model(
+  "AdvertisingProduct",
+  advertisingProductsSchema
+);
