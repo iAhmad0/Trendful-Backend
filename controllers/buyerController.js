@@ -45,7 +45,9 @@ const checkToken = async (req, res) => {
     const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
 
     if (verifyToken) {
-      res.status(StatusCodes.OK).json({ valid: true, name: verifyToken.name });
+      res
+        .status(StatusCodes.OK)
+        .json({ valid: true, name: verifyToken.name, id: verifyToken.buyerId });
     }
   } catch (err) {
     res.status(StatusCodes.FORBIDDEN).json({ valid: false });

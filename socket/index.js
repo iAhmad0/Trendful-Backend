@@ -1,37 +1,47 @@
 const { Server } = require("socket.io");
 
-const io = new Server({
-  /*cors: client server */
-});
+const io = new Server({ cors: "http://localhost:5173" });
 
 let onlineUsers = [];
+let admin = {};
 
 io.on("connection", (socket) => {
-  console.log("new connection", socket.id);
+  socket.on("addNewAdmin", (adminID) => {
+    admin = { adminID, socketID: socket.id };
 
-  // listen to a connection
-  socket.on("addNewUser", (userId) => {
-    !onlineUsers.some((user) => user.userId === userId) &&
-      onlineUsers.push({
-        userId,
-        socketId: socket.id,
-      });
+    io.emit("getOnlineUsers", onlineUsers);
   });
 
-  // add message
-  socket.on("sendMessage", (message) => {
+  socket.on("addNewUser", (userID) => {
+    !onlineUsers.some((user) => user.userID == userID) &&
+      onlineUsers.push({ userID, socketID: socket.id });
+
+    io.emit("getOnlineUsers", onlineUsers);
+  });
+
+  socket.on("adminSendMessage", (message) => {
     const user = onlineUsers.find(
-      (user) => user.userId === message.recipientId
+      (user) => user.userID === message.recepientID
     );
+
     if (user) {
-      io.to(user.socketId).emit("getMessage", message);
+      io.to(user.socketID).emit("buyerGetMessage", {
+        message: message.message,
+      });
+    }
+  });
+
+  socket.on("buyerSendMessage", (message) => {
+    if (Object.keys(admin).length) {
+      io.to(admin.socketID).emit("adminGetMessage", message);
     }
   });
 
   socket.on("disconnect", () => {
-    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
+    onlineUsers = onlineUsers.filter((user) => user.socketID !== socket.id);
+
     io.emit("getOnlineUsers", onlineUsers);
   });
 });
 
-io.listen(3000);
+io.listen(3001);

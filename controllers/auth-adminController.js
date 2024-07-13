@@ -51,6 +51,13 @@ const loginAdmin = async (req, res) => {
   res.status(StatusCodes.OK).json({ token });
 };
 
+// login admin
+const checkToken = async (req, res) => {
+  const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
+
+  res.status(StatusCodes.OK).json({ adminID: verifyToken.adminID });
+};
+
 // protecting routes
 const protected = async (req, res, next) => {
   let token;
@@ -87,4 +94,5 @@ const protected = async (req, res, next) => {
 module.exports = {
   loginAdmin,
   protected,
+  checkToken,
 };

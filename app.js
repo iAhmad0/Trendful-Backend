@@ -31,6 +31,7 @@ app.use("/messages", cors(), messageRouter);
 app.use("/points", cors(), pointRouter);
 app.use("/rewards", cors(), rewardRouter);
 app.use("/", cors(), paymentRouter);
+app.use;
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

@@ -104,6 +104,15 @@ const getAllProducts = async (req, res) => {
   res.status(StatusCodes.OK).json({ products });
 };
 
+const getBuyer = async (req, res) => {
+  const buyer = await Buyer.findOne(
+    { _id: req.params.id },
+    { name: 1, email: 1 }
+  );
+
+  res.status(StatusCodes.OK).json(buyer);
+};
+
 module.exports = {
   getAllSellers,
   editSeller,
@@ -115,4 +124,5 @@ module.exports = {
   addHomeProduct,
   removeHomeProduct,
   getHomeProducts,
+  getBuyer,
 };

@@ -36,7 +36,7 @@ AdminSchema.methods.comparePassword = function (candidatePassword) {
 };
 
 AdminSchema.methods.createJWT = function () {
-  return jwt.sign({ adminId: this._id, name: this.name }, process.env.SECRET, {
+  return jwt.sign({ adminID: this._id, name: this.name }, process.env.SECRET, {
     expiresIn: process.env.LIFETIME,
   });
 };

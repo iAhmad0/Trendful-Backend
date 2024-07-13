@@ -13,15 +13,18 @@ const {
   addHomeProduct,
   removeHomeProduct,
   getHomeProducts,
+  getBuyer,
 } = require("../controllers/adminController");
 
 const {
   loginAdmin,
   protected,
+  checkToken,
 } = require("../controllers/auth-adminController");
 
 // Admins
 router.post("/control/admin-login", loginAdmin);
+router.post("/control/token", checkToken);
 
 // products
 // router.get("/admin/get-products", protected, getAllProducts);
@@ -37,5 +40,7 @@ router.delete("/admin/delete-seller/:id", deleteSeller);
 router.get("/admin/get-buyers", getAllBuyers);
 router.put("/admin/edit-buyer", editBuyer);
 router.delete("/admin/delete-buyer/:id", deleteBuyer);
+
+router.get("/admin/get-buyer/:id", getBuyer);
 
 module.exports = router;
