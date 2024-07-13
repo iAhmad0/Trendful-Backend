@@ -10,11 +10,7 @@ const advertisingProductsSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  adPlace: {
-    type: String,
-    enum: ["mainPage", "searchPage"],
-    required: true,
-  },
+
   createdAt: {
     type: Date,
     default: Date.now,
@@ -22,7 +18,6 @@ const advertisingProductsSchema = new mongoose.Schema({
   expiresAt: {
     type: Date,
   },
-  // {expireAt:1},{expireAfterSeconds:0}
 });
 
 module.exports = mongoose.model(
