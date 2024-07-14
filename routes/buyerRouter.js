@@ -10,6 +10,7 @@ const {
   updateBuyerInfo,
   updateBuyerPassword,
   getHistory,
+  getDiscount,
 } = require("../controllers/buyerController");
 
 // signup route
@@ -25,5 +26,7 @@ router.route("/api/buyerInfo").post(getBuyerInfo).patch(updateBuyerInfo);
 router.post("/api/purchase-history", getHistory);
 
 router.route("/api/buyerPasswordChange").patch(updateBuyerPassword);
+
+router.get("/api/buyer/get-discount/:token", getDiscount);
 
 module.exports = router;

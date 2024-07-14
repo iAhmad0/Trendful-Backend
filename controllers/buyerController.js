@@ -126,7 +126,30 @@ const getHistory = async (req, res) => {
   if (verifyToken) {
     const buyer = await Buyer.findOne({ _id: verifyToken.buyerId });
 
-    res.status(StatusCodes.OK).json(buyer.orders);
+    res
+      .status(StatusCodes.OK)
+      .json({ orders: buyer.orders, points: buyer.points });
+  } else {
+    res.status(StatusCodes.UNAUTHORIZED).json("Please log in.");
+  }
+};
+
+const getDiscount = async (req, res) => {
+  const verifyToken = jwt.verify(req.params.token, process.env.SECRET);
+
+  if (verifyToken) {
+    const buyer = await Buyer.findOne({ _id: verifyToken.buyerId });
+    let discount = 0;
+    let points = buyer.points;
+
+    if (buyer.points >= 1000) {
+      while (points >= 1000) {
+        discount += 10;
+        points -= 1000;
+      }
+    }
+
+    res.status(StatusCodes.OK).json(discount);
   } else {
     res.status(StatusCodes.UNAUTHORIZED).json("Please log in.");
   }
@@ -140,4 +163,5 @@ module.exports = {
   updateBuyerInfo,
   updateBuyerPassword,
   getHistory,
+  getDiscount,
 };

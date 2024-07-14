@@ -3,10 +3,12 @@ const { StatusCodes } = require("http-status-codes");
 
 const addProduct = async (req, res) => {
   // Calculate expiration time
-  req.body.expiresAt = new Date(
-    Date.now() + req.body.durationInDays * 24 * 60 * 60 * 1000
-  );
-  const newADProduct = await AdvertisingProduct.create(req.body);
+
+  const newADProduct = await AdvertisingProduct.create({
+    durationInDays: req.body.durationInDays,
+    productID: req.body.productID,
+  });
+
   res.status(StatusCodes.CREATED).json({
     status: "success",
     data: {
@@ -14,13 +16,12 @@ const addProduct = async (req, res) => {
     },
   });
 };
-const getNonExpiredProducts = async (req, res) => {
+
+const getAdProducts = async (req, res) => {
   try {
-    const currentDate = new Date();
-    const nonExpiredProducts = await AdvertisingProduct.find({
-      expiresAt: { $gt: currentDate },
-    });
-    res.status(StatusCodes.OK).json(nonExpiredProducts);
+    const adProducts = await AdvertisingProduct.find();
+
+    res.status(StatusCodes.OK).json(adProducts);
   } catch (err) {
     res.status(StatusCodes.FORBIDDEN).json({ error: err.message });
   }
@@ -28,5 +29,5 @@ const getNonExpiredProducts = async (req, res) => {
 
 module.exports = {
   addProduct,
-  getNonExpiredProducts,
+  getAdProducts,
 };

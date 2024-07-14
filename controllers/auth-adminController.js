@@ -51,7 +51,6 @@ const loginAdmin = async (req, res) => {
   res.status(StatusCodes.OK).json({ token });
 };
 
-// login admin
 const checkToken = async (req, res) => {
   const verifyToken = jwt.verify(req.body.token, process.env.SECRET);
 

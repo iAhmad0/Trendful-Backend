@@ -31,10 +31,6 @@ const orderSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
-    shipping: {
-      type: Number,
-      required: true,
-    },
   },
   products: [
     {
@@ -49,6 +45,13 @@ const orderSchema = new mongoose.Schema({
       },
     },
   ],
+  shipping: {
+    type: Number,
+    required: true,
+  },
+  discount: {
+    type: Number,
+  },
   totalPrice: {
     type: Number,
     required: true,

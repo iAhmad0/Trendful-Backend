@@ -13,7 +13,9 @@ const createOrder = async (req, res) => {
       buyerID: verifyToken.buyerId,
       buyerInfo: { ...orderInfo[1] },
       products: [...orderInfo[2]],
-      totalPrice: orderInfo[3],
+      shipping: orderInfo[3],
+      discount: orderInfo[4],
+      totalPrice: orderInfo[5],
     };
 
     const createdOrder = await Order.create(order);
@@ -61,11 +63,24 @@ const createOrder = async (req, res) => {
               _id: createdOrder,
               productID: orderInfo[2][i].id,
               quantity: orderInfo[2][i].quantity,
+              points: orderInfo[2][i].quantity * orderInfo[2][i].price,
             },
+          },
+          $inc: {
+            points: orderInfo[2][i].quantity * orderInfo[2][i].price,
           },
         }
       );
     }
+
+    await Buyer.updateOne(
+      { _id: verifyToken.buyerId },
+      {
+        $inc: {
+          points: -order.discount * 100,
+        },
+      }
+    );
 
     res.status(StatusCodes.OK).json("Success");
   } else {

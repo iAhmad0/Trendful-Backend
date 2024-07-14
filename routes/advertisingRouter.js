@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const {
   addProduct,
-  getNonExpiredProducts,
+  getAdProducts,
 } = require("../controllers/advertisingController");
 
 router.post("/advertising/add-product", addProduct);
-router.get("/advertising/get-products", getNonExpiredProducts);
+router.get("/advertising/get-products", getAdProducts);
 
 module.exports = router;

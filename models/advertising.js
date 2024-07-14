@@ -1,22 +1,19 @@
 const mongoose = require("mongoose");
 
 const advertisingProductsSchema = new mongoose.Schema({
-  productId: {
-    type: String,
+  productID: {
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
-  // Store duration in days (or another unit)
   durationInDays: {
     type: Number,
     required: true,
   },
-
   createdAt: {
     type: Date,
+    expires: "3m",
+    index: true,
     default: Date.now,
-  },
-  expiresAt: {
-    type: Date,
   },
 });
 

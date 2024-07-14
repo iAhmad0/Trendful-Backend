@@ -28,8 +28,16 @@ const BuyerSchema = new mongoose.Schema({
         type: Number,
         required: true,
       },
+      points: {
+        type: Number,
+        required: true,
+      },
     },
   ],
+  points: {
+    type: Number,
+    default: 0,
+  },
 });
 
 BuyerSchema.pre("save", async function (next) {
